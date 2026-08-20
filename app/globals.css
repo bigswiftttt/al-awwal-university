@@ -1,26 +1,316 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* ---- shadcn core (mapped to AAU brand below) ---- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* radius: kept as Tailwind's real scale so rounded-full still renders
+     true circles (avatars, logo mark). Stitch's own "full: 0.75rem" would
+     have broken those — using named steps instead so nothing collides. */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ---- AAU / Stitch M3 surface tokens (new, additive) ---- */
+  --color-on-primary-fixed: var(--aau-on-primary-fixed);
+  --color-surface-container-low: var(--aau-surface-container-low);
+  --color-surface-container-highest: var(--aau-surface-container-highest);
+  --color-on-surface: var(--aau-on-surface);
+  --color-tertiary: var(--aau-tertiary);
+  --color-surface: var(--aau-surface);
+  --color-on-primary: var(--aau-on-primary);
+  --color-surface-dim: var(--aau-surface-dim);
+  --color-on-secondary-container: var(--aau-on-secondary-container);
+  --color-on-background: var(--aau-on-background);
+  --color-on-tertiary: var(--aau-on-tertiary);
+  --color-on-secondary-fixed: var(--aau-on-secondary-fixed);
+  --color-surface-container: var(--aau-surface-container);
+  --color-on-surface-variant: var(--aau-on-surface-variant);
+  --color-on-tertiary-container: var(--aau-on-tertiary-container);
+  --color-on-error-container: var(--aau-on-error-container);
+  --color-surface-container-high: var(--aau-surface-container-high);
+  --color-on-secondary: var(--aau-on-secondary);
+  --color-on-primary-container: var(--aau-on-primary-container);
+  --color-primary-fixed: var(--aau-primary-fixed);
+  --color-inverse-surface: var(--aau-inverse-surface);
+  --color-outline-variant: var(--aau-outline-variant);
+  --color-secondary-fixed: var(--aau-secondary-fixed);
+  --color-on-primary-fixed-variant: var(--aau-on-primary-fixed-variant);
+  --color-outline: var(--aau-outline);
+  --color-surface-variant: var(--aau-surface-variant);
+  --color-on-tertiary-fixed: var(--aau-on-tertiary-fixed);
+  --color-inverse-primary: var(--aau-inverse-primary);
+  --color-tertiary-container: var(--aau-tertiary-container);
+  --color-on-error: var(--aau-on-error);
+  --color-on-tertiary-fixed-variant: var(--aau-on-tertiary-fixed-variant);
+  --color-error-container: var(--aau-error-container);
+  --color-primary-container: var(--aau-primary-container);
+  --color-secondary-container: var(--aau-secondary-container);
+  --color-inverse-on-surface: var(--aau-inverse-on-surface);
+  --color-on-secondary-fixed-variant: var(--aau-on-secondary-fixed-variant);
+  --color-tertiary-fixed: var(--aau-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--aau-tertiary-fixed-dim);
+  --color-primary-fixed-dim: var(--aau-primary-fixed-dim);
+  --color-surface-container-lowest: var(--aau-surface-container-lowest);
+  --color-secondary-fixed-dim: var(--aau-secondary-fixed-dim);
+
+  /* Note: no custom --spacing-* overrides here on purpose.
+     Tailwind v4 uses a single numeric --spacing multiplier to generate
+     the whole p-1..p-96 scale; defining named --spacing-sm/md/lg/xl
+     entries collided with that and silently broke width/layout utilities
+     across the app. Stitch's 4px-based scale maps directly onto
+     Tailwind's default numeric scale instead:
+       base=4px->1  xs=8px->2  sm=12px->3  md=16px->4
+       gutter=20px->5  lg=24px->6  xl=32px->8  container-margin=40px->10 */
+
+  --color-error: var(--destructive);
+  --color-success: var(--aau-success);
+  --color-success-container: var(--aau-success-container);
+  --color-on-success-container: var(--aau-on-success-container);
+
+  /* ---- AAU typography (font-family utilities) ---- */
+  --font-display-lg: "Hanken Grotesk", sans-serif;
+  --font-headline-lg: "Hanken Grotesk", sans-serif;
+  --font-headline-md: "Hanken Grotesk", sans-serif;
+  --font-headline-sm: "Hanken Grotesk", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-body-sm: "Inter", sans-serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+
+  /* ---- AAU typography (text-size utilities w/ paired line-height/weight) ----
+     Confirmed NOT the cause of the layout bug via bisection — the spacing
+     namespace collision was the real culprit. Safe to keep this syntax. */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-md: 13px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.02em;
+  --text-label-md--font-weight: 600;
+
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 14px;
+  --text-label-sm--letter-spacing: 0.05em;
+  --text-label-sm--font-weight: 600;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* ---- shadcn core, overridden with AAU brand (navy) ---- */
+  --background: #fcf8f9;
+  --foreground: #1b1b1c;
+  --card: #ffffff;
+  --card-foreground: #1b1b1c;
+  --popover: #ffffff;
+  --popover-foreground: #1b1b1c;
+  --primary: #002045;
+  --primary-foreground: #ffffff;
+  --secondary: #5e5e5d;
+  --secondary-foreground: #ffffff;
+  --muted: #f0edee;
+  --muted-foreground: #43474e;
+  --accent: #e0dfde;
+  --accent-foreground: #1b1b1c;
+  --destructive: #ba1a1a;
+  --border: #c4c6cf;
+  --input: #c4c6cf;
+  --ring: #74777f;
+  --chart-1: #adc7f7;
+  --chart-2: #5e5e5d;
+  --chart-3: #43474e;
+  --chart-4: #2d476f;
+  --chart-5: #1a365d;
+  --radius: 0.5rem;
+  --sidebar: #f6f3f4;
+  --sidebar-foreground: #1b1b1c;
+  --sidebar-primary: #002045;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eae7e8;
+  --sidebar-accent-foreground: #1b1b1c;
+  --sidebar-border: #c4c6cf;
+  --sidebar-ring: #74777f;
+
+  /* ---- AAU M3 surface tokens (light) ---- */
+  --aau-on-primary-fixed: #001b3c;
+  --aau-surface-container-low: #f6f3f4;
+  --aau-surface-container-highest: #e5e2e3;
+  --aau-on-surface: #1b1b1c;
+  --aau-tertiary: #1f2121;
+  --aau-surface: #fcf8f9;
+  --aau-on-primary: #ffffff;
+  --aau-surface-dim: #dcd9da;
+  --aau-on-secondary-container: #626361;
+  --aau-on-background: #1b1b1c;
+  --aau-on-tertiary: #ffffff;
+  --aau-on-secondary-fixed: #1a1c1b;
+  --aau-surface-container: #f0edee;
+  --aau-on-surface-variant: #43474e;
+  --aau-on-tertiary-container: #9e9f9f;
+  --aau-on-error-container: #93000a;
+  --aau-surface-container-high: #eae7e8;
+  --aau-on-secondary: #ffffff;
+  --aau-on-primary-container: #86a0cd;
+  --aau-primary-fixed: #d6e3ff;
+  --aau-inverse-surface: #303031;
+  --aau-outline-variant: #c4c6cf;
+  --aau-secondary-fixed: #e3e2e0;
+  --aau-on-primary-fixed-variant: #2d476f;
+  --aau-outline: #74777f;
+  --aau-surface-variant: #e5e2e3;
+  --aau-on-tertiary-fixed: #1a1c1c;
+  --aau-inverse-primary: #adc7f7;
+  --aau-tertiary-container: #343636;
+  --aau-on-error: #ffffff;
+  --aau-on-tertiary-fixed-variant: #454747;
+  --aau-error-container: #ffdad6;
+  --aau-primary-container: #1a365d;
+  --aau-secondary-container: #e0dfde;
+  --aau-inverse-on-surface: #f3f0f1;
+  --aau-on-secondary-fixed-variant: #464746;
+  --aau-tertiary-fixed: #e2e2e2;
+  --aau-tertiary-fixed-dim: #c6c6c7;
+  --aau-primary-fixed-dim: #adc7f7;
+  --aau-surface-container-lowest: #ffffff;
+  --aau-secondary-fixed-dim: #c7c6c5;
+
+  /* Success (new — not in original Stitch export, needed for status badges) */
+  --aau-success: #137333;
+  --aau-success-container: #e6f4ea;
+  --aau-on-success-container: #0d5c29;
+}
+
+/* Dark mode: not provided by Stitch yet. Falling back to shadcn's
+   original neutral dark palette so `dark:` classes don't break —
+   revisit when a real AAU dark palette is designed. */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
 }
