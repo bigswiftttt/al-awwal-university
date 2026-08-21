@@ -8,6 +8,9 @@ const NAV_ITEMS = [
     { href: "/admin/faculties", label: "Faculties", icon: "account_balance" },
     { href: "/admin/courses", label: "Courses", icon: "menu_book" },
     { href: "/admin/fees", label: "Fees", icon: "payments" },
+    { href: "/admin/sessions", label: "Sessions", icon: "calendar_month" },
+    { href: "/admin/assignments", label: "Assignments", icon: "assignment_ind" },
+
 ];
 
 export default async function AdminLayout({
