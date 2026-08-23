@@ -81,35 +81,37 @@ export default async function LecturerProfilePage({
                         <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
                             Personal Information
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-4">
                             <div>
                                 <p className="font-label-sm text-label-sm text-outline">
                                     Email
                                 </p>
-                                <p className="font-body-md text-body-md text-on-surface">
+                                <p className="font-body-md text-body-md text-on-surface break-all">
                                     {profile?.email ?? "—"}
                                 </p>
                             </div>
-                            <div>
-                                <p className="font-label-sm text-label-sm text-outline">
-                                    Phone
-                                </p>
-                                <p className="font-body-md text-body-md text-on-surface">
-                                    {profile?.phone ?? "Not provided"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="font-label-sm text-label-sm text-outline">
-                                    Date of Birth
-                                </p>
-                                <p className="font-body-md text-body-md text-on-surface">
-                                    {profile?.date_of_birth
-                                        ? new Date(profile.date_of_birth).toLocaleDateString(
-                                            "en-US",
-                                            { year: "numeric", month: "long", day: "numeric" }
-                                        )
-                                        : "Not provided"}
-                                </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="font-label-sm text-label-sm text-outline">
+                                        Phone
+                                    </p>
+                                    <p className="font-body-md text-body-md text-on-surface">
+                                        {profile?.phone ?? "Not provided"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="font-label-sm text-label-sm text-outline">
+                                        Date of Birth
+                                    </p>
+                                    <p className="font-body-md text-body-md text-on-surface">
+                                        {profile?.date_of_birth
+                                            ? new Date(profile.date_of_birth).toLocaleDateString(
+                                                "en-US",
+                                                { year: "numeric", month: "long", day: "numeric" }
+                                            )
+                                            : "Not provided"}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </section>

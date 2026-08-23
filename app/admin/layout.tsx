@@ -10,6 +10,8 @@ const NAV_ITEMS = [
     { href: "/admin/fees", label: "Fees", icon: "payments" },
     { href: "/admin/sessions", label: "Sessions", icon: "calendar_month" },
     { href: "/admin/assignments", label: "Assignments", icon: "assignment_ind" },
+    { href: "/admin/advisers", label: "HODs & Advisers", icon: "verified_user" },
+    { href: "/admin/registrations", label: "Registrations", icon: "how_to_reg" },
 
 ];
 

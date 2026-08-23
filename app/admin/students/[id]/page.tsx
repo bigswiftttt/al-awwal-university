@@ -23,6 +23,30 @@ export default async function StudentProfilePage({
 
     if (!student) notFound();
 
+    const { data: approvedResults } = await supabase
+        .from("results")
+        .select(
+            `grade_point,
+       course_registrations!inner(student_id, courses(credits))`
+        )
+        .eq("course_registrations.student_id", id)
+        .eq("status", "approved");
+
+    let gpa: number | null = null;
+    let totalCredits = 0;
+    if (approvedResults && approvedResults.length > 0) {
+        let qualityPoints = 0;
+        for (const r of approvedResults) {
+            const reg = r.course_registrations as unknown as {
+                courses?: { credits?: number };
+            };
+            const credits = reg?.courses?.credits ?? 0;
+            qualityPoints += r.grade_point * credits;
+            totalCredits += credits;
+        }
+        gpa = totalCredits > 0 ? qualityPoints / totalCredits : null;
+    }
+
     const profile = student.profiles as {
         full_name?: string;
         email?: string;
@@ -49,6 +73,7 @@ export default async function StudentProfilePage({
                 Back to Students
             </Link>
 
+            {/* Header: Student Identity */}
             <section className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-outline-variant flex-shrink-0 shadow-sm bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-3xl">
                     {initials}
@@ -60,15 +85,15 @@ export default async function StudentProfilePage({
                         </h1>
                         <span
                             className={`px-3 py-1 font-label-sm text-label-sm rounded-full uppercase tracking-wider capitalize ${isActive
-                                    ? "bg-success-container text-on-success-container"
-                                    : "bg-error-container text-on-error-container"
+                                ? "bg-success-container text-on-success-container"
+                                : "bg-error-container text-on-error-container"
                                 }`}
                         >
                             {student.status}
                         </span>
                     </div>
                     <p className="font-body-lg text-body-lg text-secondary">
-                        {programme?.name ?? "No programme"} - Level {student.level}
+                        {programme?.name ?? "No programme"} • Level {student.level}
                     </p>
                     <p className="font-body-sm text-body-sm text-outline">
                         {student.matric_number}
@@ -83,7 +108,7 @@ export default async function StudentProfilePage({
                     </Link>
                     <button
                         disabled
-                        title="Coming in Phase 4 - Transcripts"
+                        title="Coming in Phase 4 — Transcripts"
                         className="px-4 py-2 bg-transparent border border-outline-variant text-on-surface font-label-md text-label-md rounded opacity-50 cursor-not-allowed"
                     >
                         Download Transcript
@@ -92,6 +117,7 @@ export default async function StudentProfilePage({
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left column */}
                 <div className="lg:col-span-8 space-y-8">
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-surface border border-outline-variant p-6 rounded-xl space-y-4">
@@ -103,8 +129,8 @@ export default async function StudentProfilePage({
                                     <p className="font-label-sm text-label-sm text-outline">
                                         Email
                                     </p>
-                                    <p className="font-body-md text-body-md text-on-surface">
-                                        {profile?.email ?? "-"}
+                                    <p className="font-body-md text-body-md text-on-surface break-all">
+                                        {profile?.email ?? "—"}
                                     </p>
                                 </div>
                                 <div>
@@ -135,17 +161,28 @@ export default async function StudentProfilePage({
                             <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-2">
                                 Academic Summary
                             </h3>
-                            <p className="font-body-sm text-body-sm text-secondary">
-                                Coming in Phase 4 - Results module (GPA, standing).
-                            </p>
+                            {gpa !== null ? (
+                                <div>
+                                    <span className="font-display-lg text-display-lg text-primary block leading-none">
+                                        {gpa.toFixed(2)}
+                                    </span>
+                                    <span className="font-body-sm text-body-sm text-outline">
+                                        Cumulative GPA (out of 5.0) • {totalCredits} credits
+                                    </span>
+                                </div>
+                            ) : (
+                                <p className="font-body-sm text-body-sm text-secondary">
+                                    No approved results yet.
+                                </p>
+                            )}
                             <div className="mt-4 pt-4 border-t border-outline-variant space-y-1 font-body-sm text-body-sm text-on-surface">
                                 <p>
                                     <span className="text-secondary">Faculty:</span>{" "}
-                                    {programme?.departments?.faculties?.name ?? "-"}
+                                    {programme?.departments?.faculties?.name ?? "—"}
                                 </p>
                                 <p>
                                     <span className="text-secondary">Department:</span>{" "}
-                                    {programme?.departments?.name ?? "-"}
+                                    {programme?.departments?.name ?? "—"}
                                 </p>
                                 <p>
                                     <span className="text-secondary">Admission Year:</span>{" "}
@@ -161,19 +198,20 @@ export default async function StudentProfilePage({
                         </h3>
                         <div className="bg-surface border border-outline-variant rounded-xl p-6">
                             <p className="font-body-sm text-body-sm text-secondary">
-                                Coming in Phase 3 - Course Registration module.
+                                Coming in Phase 3 — Course Registration module.
                             </p>
                         </div>
                     </section>
                 </div>
 
+                {/* Right column */}
                 <div className="lg:col-span-4 space-y-8">
                     <section className="bg-surface border border-outline-variant p-6 rounded-xl">
                         <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-2">
                             Fee Status
                         </h3>
                         <p className="font-body-sm text-body-sm text-secondary">
-                            Coming in Phase 5 - Fees module.
+                            Coming in Phase 5 — Fees module.
                         </p>
                     </section>
 
@@ -183,7 +221,7 @@ export default async function StudentProfilePage({
                         </h3>
                         <div className="bg-surface border border-outline-variant rounded-xl p-6">
                             <p className="font-body-sm text-body-sm text-secondary">
-                                Activity tracking not yet part of the current build plan -
+                                Activity tracking not yet part of the current build plan —
                                 revisit if needed in Phase 8 (Polish).
                             </p>
                         </div>
