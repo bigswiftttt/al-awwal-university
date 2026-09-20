@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function AdminDashboardPage() {
     const supabase = await createClient();
@@ -9,6 +10,9 @@ export default async function AdminDashboardPage() {
         { count: facultyCount },
         { count: programmeCount },
         { data: recentStudents },
+        { count: feeStructureCount },
+        { count: pendingResultsCount },
+        { count: approvedResultsCount },
     ] = await Promise.all([
         supabase.from("students").select("*", { count: "exact", head: true }),
         supabase.from("lecturers").select("*", { count: "exact", head: true }),
@@ -19,6 +23,15 @@ export default async function AdminDashboardPage() {
             .select("id, matric_number, status, profiles(full_name), programmes(name)")
             .order("created_at", { ascending: false })
             .limit(4),
+        supabase.from("fee_structures").select("*", { count: "exact", head: true }),
+        supabase
+            .from("results")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "pending"),
+        supabase
+            .from("results")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "approved"),
     ]);
 
     const metrics = [
@@ -119,22 +132,36 @@ export default async function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Placeholder widgets — need fees/results tables (Phase 4 & 5) */}
+                {/* Live widgets — both Fees and Results now have real data */}
                 <div className="flex flex-col gap-6">
-                    <div className="bg-surface rounded-xl border border-outline-variant p-6">
-                        <h3 className="font-headline-sm text-headline-sm text-on-surface mb-md">
-                            Fee Collection
+                    <Link
+                        href="/admin/fees"
+                        className="bg-surface rounded-xl border border-outline-variant p-6 hover:bg-surface-container-low transition-colors block"
+                    >
+                        <h3 className="font-headline-sm text-headline-sm text-on-surface mb-4">
+                            Fee Structures
                         </h3>
-                        <p className="font-body-sm text-body-sm text-secondary">
-                            Coming in Phase 5 — Fees module.
+                        <p className="font-display-lg text-display-lg text-on-surface leading-none">
+                            {feeStructureCount ?? 0}
                         </p>
-                    </div>
+                        <p className="font-body-sm text-body-sm text-secondary mt-2">
+                            {(feeStructureCount ?? 0) === 1 ? "structure" : "structures"} configured.
+                            Payment tracking not yet built.
+                        </p>
+                    </Link>
                     <div className="bg-surface rounded-xl border border-outline-variant p-6">
-                        <h3 className="font-headline-sm text-headline-sm text-on-surface mb-md">
+                        <h3 className="font-headline-sm text-headline-sm text-on-surface mb-4">
                             Result Submissions
                         </h3>
                         <p className="font-body-sm text-body-sm text-secondary">
-                            Coming in Phase 4 — Results module.
+                            <span className="font-medium text-on-surface">
+                                {pendingResultsCount ?? 0}
+                            </span>{" "}
+                            pending approval,{" "}
+                            <span className="font-medium text-on-surface">
+                                {approvedResultsCount ?? 0}
+                            </span>{" "}
+                            approved.
                         </p>
                     </div>
                 </div>

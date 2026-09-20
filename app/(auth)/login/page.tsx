@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-    const router = useRouter();
     const supabase = createClient();
 
     const [email, setEmail] = useState("");
@@ -18,7 +16,7 @@ export default function LoginPage() {
         setLoading(true);
         setError(null);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
@@ -29,19 +27,11 @@ export default function LoginPage() {
             return;
         }
 
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", data.user.id)
-            .single();
-
-        setLoading(false);
-
-        if (profile?.role === "admin") router.push("/admin");
-        else if (profile?.role === "lecturer") router.push("/lecturer");
-        else router.push("/student");
-
-        router.refresh();
+        // Hard reload (not router.push) — guarantees the session cookie set
+        // by signInWithPassword is actually attached to the next request.
+        // A client-side navigation risks reaching the server before the
+        // cookie write has fully landed.
+        window.location.href = "/";
     }
 
     return (

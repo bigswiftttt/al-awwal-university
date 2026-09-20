@@ -13,7 +13,7 @@ export default async function StudentProfilePage({
     const { data: student } = await supabase
         .from("students")
         .select(
-            `id, matric_number, level, admission_year, status,
+            `id, matric_number, level, admission_year, status, programme_id,
        profiles(full_name, email, phone, date_of_birth),
        programmes(name, duration_years,
          departments(name, faculties(name)))`
@@ -47,6 +47,22 @@ export default async function StudentProfilePage({
         gpa = totalCredits > 0 ? qualityPoints / totalCredits : null;
     }
 
+    const { data: currentSession } = await supabase
+        .from("academic_sessions")
+        .select("id, name")
+        .eq("is_current", true)
+        .single();
+
+    const { data: feeStructure } = currentSession && student.programme_id
+        ? await supabase
+            .from("fee_structures")
+            .select("amount")
+            .eq("programme_id", student.programme_id)
+            .eq("level", student.level)
+            .eq("session_id", currentSession.id)
+            .maybeSingle()
+        : { data: null };
+
     const profile = student.profiles as {
         full_name?: string;
         email?: string;
@@ -73,7 +89,6 @@ export default async function StudentProfilePage({
                 Back to Students
             </Link>
 
-            {/* Header: Student Identity */}
             <section className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-outline-variant flex-shrink-0 shadow-sm bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-3xl">
                     {initials}
@@ -93,7 +108,7 @@ export default async function StudentProfilePage({
                         </span>
                     </div>
                     <p className="font-body-lg text-body-lg text-secondary">
-                        {programme?.name ?? "No programme"} • Level {student.level}
+                        {programme?.name ?? "No programme"} - Level {student.level}
                     </p>
                     <p className="font-body-sm text-body-sm text-outline">
                         {student.matric_number}
@@ -108,7 +123,7 @@ export default async function StudentProfilePage({
                     </Link>
                     <button
                         disabled
-                        title="Coming in Phase 4 — Transcripts"
+                        title="Coming in Phase 6 - Transcripts"
                         className="px-4 py-2 bg-transparent border border-outline-variant text-on-surface font-label-md text-label-md rounded opacity-50 cursor-not-allowed"
                     >
                         Download Transcript
@@ -117,7 +132,6 @@ export default async function StudentProfilePage({
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left column */}
                 <div className="lg:col-span-8 space-y-8">
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-surface border border-outline-variant p-6 rounded-xl space-y-4">
@@ -198,21 +212,36 @@ export default async function StudentProfilePage({
                         </h3>
                         <div className="bg-surface border border-outline-variant rounded-xl p-6">
                             <p className="font-body-sm text-body-sm text-secondary">
-                                Coming in Phase 3 — Course Registration module.
+                                Coming in Phase 6 — Student Portal (course registration view).
                             </p>
                         </div>
                     </section>
                 </div>
 
-                {/* Right column */}
                 <div className="lg:col-span-4 space-y-8">
                     <section className="bg-surface border border-outline-variant p-6 rounded-xl">
                         <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-2">
                             Fee Status
                         </h3>
-                        <p className="font-body-sm text-body-sm text-secondary">
-                            Coming in Phase 5 — Fees module.
-                        </p>
+                        {feeStructure ? (
+                            <div>
+                                <span className="font-headline-lg text-headline-lg text-on-surface leading-none block">
+                                    ₦{Number(feeStructure.amount).toLocaleString()}
+                                </span>
+                                <span className="font-body-sm text-body-sm text-outline">
+                                    Owed for {currentSession?.name}
+                                </span>
+                                <p className="font-body-sm text-body-sm text-secondary pt-2">
+                                    Payment tracking not yet built — this is the amount due,
+                                    not a paid/unpaid status.
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="font-body-sm text-body-sm text-secondary">
+                                No fee structure set for this student&apos;s programme,
+                                level, and current session yet.
+                            </p>
+                        )}
                     </section>
 
                     <section className="space-y-3">
@@ -221,7 +250,7 @@ export default async function StudentProfilePage({
                         </h3>
                         <div className="bg-surface border border-outline-variant rounded-xl p-6">
                             <p className="font-body-sm text-body-sm text-secondary">
-                                Activity tracking not yet part of the current build plan —
+                                Activity tracking not yet part of the current build plan -
                                 revisit if needed in Phase 8 (Polish).
                             </p>
                         </div>

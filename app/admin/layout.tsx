@@ -12,6 +12,9 @@ const NAV_ITEMS = [
     { href: "/admin/assignments", label: "Assignments", icon: "assignment_ind" },
     { href: "/admin/advisers", label: "HODs & Advisers", icon: "verified_user" },
     { href: "/admin/registrations", label: "Registrations", icon: "how_to_reg" },
+    { href: "/admin/announcements", label: "Announcements", icon: "campaign" },
+    { href: "/admin/venues", label: "Venues", icon: "meeting_room" },
+    { href: "/admin/timetable", label: "Timetable", icon: "schedule" },
 
 ];
 

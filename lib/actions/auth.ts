@@ -3,15 +3,17 @@ import { redirect } from 'next/navigation'
 
 export async function getCurrentUser() {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    console.log('DEBUG getCurrentUser - user:', user?.id, 'email:', user?.email, 'error:', userError)
     if (!user) return null
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single()
 
+    console.log('DEBUG getCurrentUser - profile:', profile, 'profileError:', profileError)
     return profile
 }
 
