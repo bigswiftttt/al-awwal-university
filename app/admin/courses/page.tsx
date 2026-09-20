@@ -161,7 +161,6 @@ export default async function CoursesPage({
                         </thead>
                         <tbody className="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant">
                             {courses && courses.length > 0 ? (
-                                // @ts-expect-error -- joined relations typed loosely (see Phase 2 note)
                                 courses.map((c) => {
                                     const department = c.departments as {
                                         name?: string;
